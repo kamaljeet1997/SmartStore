@@ -13,6 +13,7 @@ mixin ApiHelper {
   // Future<Response<UsersResponse>> Login(FormData formData, Map<String, String> data);
   Future<Response<UsersResponse>> getUsers();
   Future<Response<Alert2Response>> getAlerts();
+  Future<Response<Alert2Response>> getAdminAlerts();
   Future<Response<StoreResponse>> getStore();
   Future<Response<ZoneResponse>> getZone();
   Future<Response<CounterResponse>> getCounter();

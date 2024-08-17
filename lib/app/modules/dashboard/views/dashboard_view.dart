@@ -123,8 +123,9 @@ class DashboardView extends GetView<DashboardController> {
                                     fontFamily: 'Poppins-Medium'),
                                 onChanged: (value) {
                                   controller.selectZone = value!.zoneName??'';
+                                  controller.selectZoneId = value.zoneID??'';
                                   controller.getAlertslist= controller.getallAlertslist;
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneName== controller.selectZone).toList();
+                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
 
                                   //   controller.firebase_Ebook(value.classId!);
                                 },
@@ -138,7 +139,7 @@ class DashboardView extends GetView<DashboardController> {
                       .toLowerCase() ==
                       "station master"
                       ? SizedBox.shrink()
-                      : Expanded(
+                      : controller.getStorelist.isEmpty?SizedBox.shrink():Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(
                                 left:   controller.map['role']
@@ -167,8 +168,10 @@ class DashboardView extends GetView<DashboardController> {
                                     fontFamily: 'Poppins-Medium'),
                                 onChanged: (value) {
                                   controller.selectStore = value!.storeName??'';
+                                  controller.selectStoreId = value.storeID??'';
                                   controller.getAlertslist= controller.getallAlertslist;
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeName== controller.selectStore).toList();
+                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeID==  controller.selectStoreId).toList();
+                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeID==  controller.selectStoreId).toList();
 
                                   //   controller.firebase_Ebook(value.classId!);
                                 },
@@ -183,6 +186,7 @@ class DashboardView extends GetView<DashboardController> {
             Obx(
               () => Row(
                 children: [
+
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -191,8 +195,8 @@ class DashboardView extends GetView<DashboardController> {
                           top: Get.height / 80,
                           bottom: Get.width / 90),
                       child: Center(
-                        child: CustomDropDownWidget<AlertTwoData>(
-                          dataList: controller.getAlertslist,
+                        child: CustomDropDownWidget<String>(
+                          dataList: controller.getDateslist.toSet().toList(),
                           hinttext: controller.selectDate == ""
                               ? "Date"
                               : controller.selectDate,
@@ -207,14 +211,14 @@ class DashboardView extends GetView<DashboardController> {
                                   : Get.height / 60,
                               fontFamily: 'Poppins-Medium'),
                           onChanged: (value) {
-                            controller.selectDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(value!.updatedAt??''));
+                            controller.selectDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(value!));
                             //   controller.firebase_Ebook(value.classId!);
                             controller.getAlertslist= controller.getallAlertslist;
-                            controller. getAlertslist= controller.getAlertslist.where((e)=>DateFormat('dd/MM/yyyy').format(DateTime.parse(e.updatedAt!))== DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.selectDate))).toList();
+                            controller. getAlertslist= controller.getAlertslist.where((e)=>DateFormat('dd/MM/yyyy').format(DateTime.parse(e.updatedAt.toString().split("T")[0].toString()))== controller.selectDate).toList();
 
 
                           },
-                          item: (data) => DateFormat('dd/MM/yyyy').format(DateTime.parse(data.updatedAt??'')),
+                          item: (data) => DateFormat('dd/MM/yyyy').format(DateTime.parse(data.toString())),
                         ),
                       ),
                     ),
@@ -396,12 +400,12 @@ class DashboardView extends GetView<DashboardController> {
                                             SizedBox(
                                               height: 10,
                                             ),
-                                           Align(
+                                            image!=null?Align(
                                                 alignment: Alignment.center,
                                                 child: Image.memory(
                                                   image,
                                                   // color: AppColors.black,
-                                                )),
+                                                )):SizedBox.shrink(),
                                             SizedBox(
                                               height: Get.height/50,
                                             ),
@@ -608,33 +612,62 @@ class DashboardView extends GetView<DashboardController> {
                                     children: [
                                       Padding(
                                         padding: EdgeInsets.only(
-                                            top: 10, left: Get.width / 30),
+                                            top: controller.getAlertslist[i].queueLengthAlert!=null&&controller.getAlertslist[i].waitTimeAlert!=null?10:0, left: Get.width / 30),
                                         child: Obx(
-                                          ()=> RichText(
-                                            text: TextSpan(
-                                              text: 'Alert: ',
-                                              style: TextStyle(
-                                                  color: AppColors.black,
-                                                  fontSize: Get.height / 60,
-                                                  fontWeight: FontWeight.bold),
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                  text: controller.getAlertslist[i].queueLengthAlert==null
-                                                      ||controller.getAlertslist[i].queueLengthAlert!.isEmpty
-                                                      ?controller.getAlertslist[i].waitTimeAlert??''
-                                                      :controller.getAlertslist[i].waitTimeAlert==null
-                                                      ||controller.getAlertslist[i].waitTimeAlert!.isEmpty
-                                                      ?controller.getAlertslist[i].queueLengthAlert??''
-                                                      :"",
+                                          ()=> controller.getAlertslist[i].queueLengthAlert!=null
+
+                                              ?Row(
+                                                children: [
+                                                  Icon(Icons.notification_important,color: AppColors.gray.withOpacity(0.8),),
+                                                  SizedBox(width: 10,),
+                                                  RichText(
+                                                                                              text: TextSpan(
+                                                  text: 'Alert: ',
                                                   style: TextStyle(
                                                       color: AppColors.black,
                                                       fontSize: Get.height / 60,
-                                                      fontWeight:
+                                                      fontWeight: FontWeight.bold),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: controller.getAlertslist[i].queueLengthAlert??"",
+                                                      style: TextStyle(
+                                                          color: AppColors.black,
+                                                          fontSize: Get.height / 60,
+                                                          fontWeight:
+                                                              FontWeight.normal),
+                                                    ),
+                                                  ],
+                                                                                              ),
+                                                                                            ),
+                                                ],
+                                              ):controller.getAlertslist[i].waitTimeAlert==null
+
+                                              ?SizedBox()
+                                              :Row(
+                                                children: [
+                                                  Icon(Icons.notification_important,color: AppColors.gray.withOpacity(0.8),),
+                                                  SizedBox(width: 10,),
+                                                  RichText(
+                                                                                              text: TextSpan(
+                                                  text: 'Alert: ',
+                                                  style: TextStyle(
+                                                      color: AppColors.black,
+                                                      fontSize: Get.height / 60,
+                                                      fontWeight: FontWeight.bold),
+                                                  children: <TextSpan>[
+                                                    TextSpan(
+                                                      text: controller.getAlertslist[i].waitTimeAlert??"",
+                                                      style: TextStyle(
+                                                          color: AppColors.black,
+                                                          fontSize: Get.height / 60,
+                                                          fontWeight:
                                                           FontWeight.normal),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                                    ),
+                                                  ],
+                                                                                              ),
+                                                                                            ),
+                                                ],
+                                              ),
                                         ),
                                       ),
                                       controller.map['role']
@@ -651,27 +684,33 @@ class DashboardView extends GetView<DashboardController> {
                                               padding: EdgeInsets.only(
                                                   top: 10,
                                                   left: Get.width / 30),
-                                              child: RichText(
-                                                text: TextSpan(
-                                                  text: 'Zone: ',
-                                                  style: TextStyle(
-                                                      color: AppColors.black,
-                                                      fontSize: Get.height / 60,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                  children: <TextSpan>[
-                                                    TextSpan(
-                                                      text: controller.getAlertslist[i].zoneName==null||controller.getAlertslist[i].zoneName!.isEmpty?"":controller.getAlertslist[i].zoneName.toString(),
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.location_city,color: AppColors.gray.withOpacity(0.8),),
+                                                  SizedBox(width: 10,),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      text: 'Zone: ',
                                                       style: TextStyle(
-                                                          color:
-                                                              AppColors.black,
-                                                          fontSize:
-                                                              Get.height / 60,
-                                                          fontWeight: FontWeight
-                                                              .normal),
+                                                          color: AppColors.black,
+                                                          fontSize: Get.height / 60,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text: controller.getAlertslist[i].zoneName==null||controller.getAlertslist[i].zoneName!.isEmpty?"":controller.getAlertslist[i].zoneName.toString(),
+                                                          style: TextStyle(
+                                                              color:
+                                                                  AppColors.black,
+                                                              fontSize:
+                                                                  Get.height / 60,
+                                                              fontWeight: FontWeight
+                                                                  .normal),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                       controller.map['role']
@@ -683,50 +722,62 @@ class DashboardView extends GetView<DashboardController> {
                                               padding: EdgeInsets.only(
                                                   top: 10,
                                                   left: Get.width / 30),
-                                              child: RichText(
-                                                text: TextSpan(
-                                                  text: 'Store: ',
-                                                  style: TextStyle(
-                                                      color: AppColors.black,
-                                                      fontSize: Get.height / 60,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                  children: <TextSpan>[
-                                                    TextSpan(
-                                                      text: controller.getAlertslist[i].storeName==null||controller.getAlertslist[i].storeName!.isEmpty?"":controller.getAlertslist[i].storeName.toString(),
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.store,color: AppColors.gray.withOpacity(0.8),),
+                                                  SizedBox(width: 10,),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      text: 'Store: ',
                                                       style: TextStyle(
-                                                          color:
-                                                              AppColors.black,
-                                                          fontSize:
-                                                              Get.height / 60,
-                                                          fontWeight: FontWeight
-                                                              .normal),
+                                                          color: AppColors.black,
+                                                          fontSize: Get.height / 60,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text: controller.getAlertslist[i].storeName==null||controller.getAlertslist[i].storeName!.isEmpty?"":controller.getAlertslist[i].storeName.toString(),
+                                                          style: TextStyle(
+                                                              color:
+                                                                  AppColors.black,
+                                                              fontSize:
+                                                                  Get.height / 60,
+                                                              fontWeight: FontWeight
+                                                                  .normal),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                       Padding(
                                         padding: EdgeInsets.only(
                                             top: 10, left: Get.width / 30),
-                                        child: RichText(
-                                          text: TextSpan(
-                                            text: 'Date & Time: ',
-                                            style: TextStyle(
-                                                color: AppColors.black,
-                                                fontSize: Get.height / 60,
-                                                fontWeight: FontWeight.bold),
-                                            children: <TextSpan>[
-                                              TextSpan(
-                                                text: controller.getAlertslist[i].updatedAt==null?"":DateFormat('dd/MM/yyyy hh:mm aa').format(DateTime.parse(controller.getAlertslist[i].updatedAt.toString())),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.calendar_month,color: AppColors.gray.withOpacity(0.8),),
+                                            SizedBox(width: 10,),
+                                            RichText(
+                                              text: TextSpan(
+                                                text: 'Date & Time: ',
                                                 style: TextStyle(
                                                     color: AppColors.black,
                                                     fontSize: Get.height / 60,
-                                                    fontWeight:
-                                                        FontWeight.normal),
+                                                    fontWeight: FontWeight.bold),
+                                                children: <TextSpan>[
+                                                  TextSpan(
+                                                    text: controller.getAlertslist[i].updatedAt==null?"":DateFormat('dd/MM/yyyy hh:mm aa').format(DateTime.parse(controller.getAlertslist[i].updatedAt.toString())),
+                                                    style: TextStyle(
+                                                        color: AppColors.black,
+                                                        fontSize: Get.height / 60,
+                                                        fontWeight:
+                                                            FontWeight.normal),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

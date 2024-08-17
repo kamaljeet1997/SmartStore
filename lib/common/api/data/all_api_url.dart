@@ -13,5 +13,6 @@ String KZone = "Zone_k";
 String KStore = "Store_k";
 String KCounter = "Counter_k";
 String KCamera = "Camera_k";
+String KAdmin = "test_url_e2e_k";
 
 FToast? fToast;

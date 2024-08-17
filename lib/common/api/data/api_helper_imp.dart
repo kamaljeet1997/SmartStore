@@ -71,6 +71,14 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
+  @override
+  Future<Response<Alert2Response>> getAdminAlerts() {
+    // TODO: implement getAlerts
+    return get(
+      KAdmin,
+      decoder: (v) => Alert2Response.fromJson(v),
+    );
+  }
 
   @override
   Future<Response<CameraResponse>> getCamera() {

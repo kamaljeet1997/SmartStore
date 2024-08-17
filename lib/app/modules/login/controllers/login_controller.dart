@@ -38,9 +38,14 @@ class LoginController extends GetxController {
   final RxString _usersname= ''.obs;
   String get usersname => _usersname.value;
   set usersname(String v) => _usersname.value = v;
+
   final RxString _role = ''.obs;
   String get role => _role.value;
   set role(String v) => _role.value = v;
+
+  final RxString _userId = ''.obs;
+  String get userId => _userId.value;
+  set userId(String v) => _userId.value = v;
 
 
   @override
@@ -62,6 +67,7 @@ class LoginController extends GetxController {
        email=getUserslist[i].userEmail??"";
        password=getUserslist[i].password_D??"";
        usersname=getUserslist[i].userName??"";
+       userId=getUserslist[i].userId??"";
        role=getUserslist[i].role??"";
       }
 if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
@@ -69,6 +75,7 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
     "email":email,
     "username":usersname,
     "password":password,
+    "userId":userId,
     "role":role
   };
   Get.offAllNamed(Routes.DASHBOARD,arguments:map);
@@ -104,7 +111,8 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
             "email":email,
             "username":usersname,
             "password":password,
-            "role":role
+            "role":role,
+            "list":getUserslist
           };
           Get.offAllNamed(Routes.DASHBOARD,arguments:map);
         }else{

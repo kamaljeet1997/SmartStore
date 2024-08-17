@@ -25,6 +25,11 @@ class DashboardController extends GetxController {
   String get selectZone => _selectZone.value;
   set selectZone(String v) => _selectZone.value = v;
 
+  final RxString _selectZoneId = ''.obs;
+  String get selectZoneId => _selectZoneId.value;
+  set selectZoneId(String v) => _selectZoneId.value = v;
+
+
   final RxInt _itemCount = 10.obs;
   int get itemCount => _itemCount.value;
   set itemCount(int v) => _itemCount.value = v;
@@ -33,6 +38,12 @@ class DashboardController extends GetxController {
   final RxString _selectStore = ''.obs;
   String get selectStore => _selectStore.value;
   set selectStore(String v) => _selectStore.value = v;
+
+   final RxString _selectStoreId = ''.obs;
+  String get selectStoreId => _selectStoreId.value;
+  set selectStoreId(String v) => _selectStoreId.value = v;
+
+
 
  final RxString _selectDate = ''.obs;
   String get selectDate => _selectDate.value;
@@ -55,6 +66,10 @@ class DashboardController extends GetxController {
   List<AlertTwoData> get getAlertslist => _getAlertslist.value;
   set getAlertslist(List<AlertTwoData> v) => _getAlertslist.assignAll(v);
 
+  final RxList<String> _getDateslist = <String>[].obs;
+  List<String> get getDateslist => _getDateslist.value;
+  set getDateslist(List<String> v) => _getDateslist.assignAll(v);
+
   final RxList<AlertTwoData> _getallAlertslist = <AlertTwoData>[].obs;
   List<AlertTwoData> get getallAlertslist => _getallAlertslist.value;
   set getallAlertslist(List<AlertTwoData> v) => _getallAlertslist.assignAll(v);
@@ -64,6 +79,7 @@ class DashboardController extends GetxController {
   final RxList<ZoneData> _getZonelist = <ZoneData>[].obs;
   List<ZoneData> get getZonelist => _getZonelist.value;
   set getZonelist(List<ZoneData> v) => _getZonelist.assignAll(v);
+
 
   final RxList<StoreData> _getStorelist = <StoreData>[].obs;
   List<StoreData> get getStorelist => _getStorelist.value;
@@ -78,7 +94,7 @@ class DashboardController extends GetxController {
     if(Get.arguments!=null){
       map=Get.arguments;
       username=map['username'];
-      print("Dashbaord   ${json.encode(map)}");
+      print("Role Dashboard   ${map['role']}");
       alertsApiPost();
     }
   }
@@ -91,24 +107,54 @@ class DashboardController extends GetxController {
 
   void alertsApiPost() {
     shimmer=false;
-    _apiHelper.getAlerts().futureValue((v) {
-      printInfo(info: v.data.toString());
-      if (v.data != null) {
+    if(map['role']=='Admin'){
+      _apiHelper.getAdminAlerts().futureValue((v) {
+        printInfo(info: v.data.toString());
+        if (v.data != null) {
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          for(int i=0;i<getAlertslist.length;i++){
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+          }
 
 
-        selectAlert='';
-        selectZone='';
-        selectDate='';
-        selectStore='';
-        getallAlertslist=v.data??[];
-        getAlertslist=v.data??[];
-        zoneApiPost();
-        print("Alerts : ${json.encode(v.data??[])}");
+          print("Alerts : ${json.encode(v.data??[])}");
 
 
+        }
       }
+      );
+    }else{
+      _apiHelper.getAlerts().futureValue((v) {
+        printInfo(info: v.data.toString());
+        if (v.data != null) {
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          for(int i=0;i<getAlertslist.length;i++){
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+          }
+          // zoneApiPost();
+          print("Alerts : ${json.encode(v.data??[])}");
+
+
+        }
+      }
+      );
     }
-    );
+    if(map['role']=='Zone Supervisor' || map['role']=='Admin'){
+      zoneApiPost();
+    }else{
+      StoreApiPost();
+    }
+
   }
 
 
@@ -117,7 +163,6 @@ class DashboardController extends GetxController {
       printInfo(info: v.data.toString());
       if (v.data != null) {
         getZonelist=v.data??[];
-        // getAlertslist=getallAlertslist;
         // getAlertslist=getAlertslist.where((e)=>e.zoneFootfall==selectZone).toList();
         StoreApiPost();
         print("Zone : ${json.encode(v.data??[])}");
@@ -133,7 +178,7 @@ class DashboardController extends GetxController {
         shimmer=true;
         getStorelist=v.data??[];
         // getAlertslist=getallAlertslist;
-        // getAlertslist=getAlertslist.where((e)=>e.storeFootfall==selectStore).toList();
+        getStorelist=getStorelist.where((e)=>e.userId==map['userId']).toList();
 
         print("Zone : ${json.encode(v.data??[])}");
 
