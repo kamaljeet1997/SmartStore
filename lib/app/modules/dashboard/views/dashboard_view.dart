@@ -491,6 +491,7 @@ class DashboardView extends GetView<DashboardController> {
                                               height: 10,
                                             ),
 
+
                                             Padding(
                                               padding: EdgeInsets.only(
                                                   top: 10, left: Get.width / 30),
