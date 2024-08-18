@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import '../../../../common/api/data/api_helper.dart';
 import '../../../../common/api/utils/utils.dart';
 import '../../../../common/appColors.dart';
+import '../../../../common/constant/prefs.dart';
 import '../../../data/Alert2Response.dart';
 import '../../../data/AlertResponse.dart';
 
@@ -18,7 +19,7 @@ class DashboardController extends GetxController {
   final RxString _username = ''.obs;
   String get username => _username.value;
   set username(String v) => _username.value = v;
-  final RxBool _shimmer = false.obs;
+  final RxBool _shimmer = true.obs;
   bool get shimmer => _shimmer.value;
   set shimmer(bool v) => _shimmer.value = v;
   final RxString _selectZone = ''.obs;
@@ -87,29 +88,51 @@ class DashboardController extends GetxController {
 
 
   Map map=<String,dynamic>{};
+
+  final RxString _selectRole = ''.obs;
+  String get selectRole => _selectRole.value;
+  set selectRole(String v) => _selectRole.value = v;
+
+  final RxString _userId = ''.obs;
+  String get userId => _userId.value;
+  set userId(String v) => _userId.value = v;
+
+
   @override
   void onInit() {
     super.onInit();
-    shimmer=false;
+    shimmer=true;
     if(Get.arguments!=null){
       map=Get.arguments;
       username=map['username'];
-      print("Role Dashboard   ${map['role']}");
-      alertsApiPost();
+      if(map['role']==null ||map['role']=='' ){
+        selectRole=Get.find<Prefs>().role.val;
+        userId=Get.find<Prefs>().userId.val;
+      }else{
+        selectRole=map['role'];
+        userId=map['usersId'];
+      }
+
+      print("Role Dashboard   ${selectRole}");
+
     }
+
   }
 
   @override
   void onReady() {
     super.onReady();
 
+    alertsApiPost();
+
   }
 
   void alertsApiPost() {
-    shimmer=false;
-    if(map['role']=='Admin'){
+
+    if(selectRole=='Admin'){
       _apiHelper.getAdminAlerts().futureValue((v) {
         printInfo(info: v.data.toString());
+
         if (v.data != null) {
           selectAlert='';
           selectZone='';
@@ -138,6 +161,11 @@ class DashboardController extends GetxController {
           selectStore='';
           getallAlertslist=v.data??[];
           getAlertslist=v.data??[];
+          if(selectRole=='Station Master'){
+            getAlertslist=getAlertslist.where((e)=>e.userID==userId).toList();
+            print("Alerts for store user only : ${json.encode(getAlertslist)}");
+
+          }
           for(int i=0;i<getAlertslist.length;i++){
             getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
           }
@@ -149,7 +177,7 @@ class DashboardController extends GetxController {
       }
       );
     }
-    if(map['role']=='Zone Supervisor' || map['role']=='Admin'){
+    if(selectRole=='Zone Supervisor' || selectRole=='Admin'){
       zoneApiPost();
     }else{
       StoreApiPost();
@@ -175,10 +203,14 @@ class DashboardController extends GetxController {
     _apiHelper.getStore().futureValue((v) {
       printInfo(info: v.data.toString());
       if (v.data != null) {
-        shimmer=true;
+        shimmer=false;
         getStorelist=v.data??[];
         // getAlertslist=getallAlertslist;
-        getStorelist=getStorelist.where((e)=>e.userId==map['userId']).toList();
+        if(selectRole=='Zone Supervisor'){
+          getStorelist=getStorelist.where((e)=>e.zoneID==getZonelist[0].zoneID.toString()).toList();
+        }else{
+
+        }
 
         print("Zone : ${json.encode(v.data??[])}");
 

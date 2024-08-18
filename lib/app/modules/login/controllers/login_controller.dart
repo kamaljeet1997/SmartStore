@@ -32,6 +32,12 @@ class LoginController extends GetxController {
   set email(String v) => _email.value = v;
 
 
+  final RxString _userId = ''.obs;
+  String get userId => _userId.value;
+  set userId(String v) => _userId.value = v;
+
+
+
   final RxString _password = ''.obs;
   String get password => _password.value;
   set password(String v) => _password.value = v;
@@ -43,9 +49,7 @@ class LoginController extends GetxController {
   String get role => _role.value;
   set role(String v) => _role.value = v;
 
-  final RxString _userId = ''.obs;
-  String get userId => _userId.value;
-  set userId(String v) => _userId.value = v;
+
 
 
   @override
@@ -75,8 +79,9 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
     "email":email,
     "username":usersname,
     "password":password,
-    "userId":userId,
-    "role":role
+    "role":role,
+    "usersId":userId,
+    "list":getUserslist
   };
   Get.offAllNamed(Routes.DASHBOARD,arguments:map);
 }
@@ -104,6 +109,10 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
           password=getUserslist[i].password_D??"";
           usersname=getUserslist[i].userName??"";
           role=getUserslist[i].role??"";
+          userId=getUserslist[i].userId??"";
+          Get.find<Prefs>().role.val = role;
+          Get.find<Prefs>().userId.val = userId;
+
         }
 
         if(email==emailcontroller.text && password==passwordcontroller.text){
@@ -112,6 +121,7 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
             "username":usersname,
             "password":password,
             "role":role,
+            "usersId":userId,
             "list":getUserslist
           };
           Get.offAllNamed(Routes.DASHBOARD,arguments:map);

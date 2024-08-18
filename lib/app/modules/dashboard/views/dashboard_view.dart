@@ -89,11 +89,11 @@ class DashboardView extends GetView<DashboardController> {
             Obx(
               () => Row(
                 children: [
-                  controller.map['role']
+                  controller.selectRole
                       .toString()
                       .toLowerCase() ==
                       "station master" ||
-                      controller.map['role']
+                      controller.selectRole
                           .toString()
                           .toLowerCase()
                            ==
@@ -126,6 +126,8 @@ class DashboardView extends GetView<DashboardController> {
                                   controller.selectZoneId = value.zoneID??'';
                                   controller.getAlertslist= controller.getallAlertslist;
                                   controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
+                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
+                                  controller. getStorelist= controller.getStorelist.where((e)=>e.zoneID== controller.selectZoneId).toList();
 
                                   //   controller.firebase_Ebook(value.classId!);
                                 },
@@ -134,7 +136,7 @@ class DashboardView extends GetView<DashboardController> {
                             ),
                           ),
                         ),
-                  controller.map['role']
+                  controller.selectRole
                       .toString()
                       .toLowerCase() ==
                       "station master"
@@ -142,7 +144,7 @@ class DashboardView extends GetView<DashboardController> {
                       : controller.getStorelist.isEmpty?SizedBox.shrink():Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(
-                                left:   controller.map['role']
+                                left:   controller.selectRole
                                     .toString()
                                     .toLowerCase()
                                     ==
@@ -269,8 +271,7 @@ class DashboardView extends GetView<DashboardController> {
             ),
             Expanded(
               child: Obx(
-                () =>  controller.shimmer ==
-                    false
+                () =>  controller.shimmer
                     ? ListView.builder(
                     shrinkWrap: true,
     itemCount: controller.getAlertslist.length,
@@ -670,11 +671,11 @@ class DashboardView extends GetView<DashboardController> {
                                               ),
                                         ),
                                       ),
-                                      controller.map['role']
+                                      controller.selectRole
                                                       .toString()
                                                       .toLowerCase() ==
                                                   "station master" ||
-                                          controller.map['role']
+                                          controller.selectRole
                                                       .toString()
                                                       .toLowerCase()
                                                        ==
@@ -686,7 +687,9 @@ class DashboardView extends GetView<DashboardController> {
                                                   left: Get.width / 30),
                                               child: Row(
                                                 children: [
-                                                  Icon(Icons.location_city,color: AppColors.gray.withOpacity(0.8),),
+                                                  Image.asset('images/zone.png',
+                                                  height: 20,),
+                                                  // Icon(Icons.location_city,color: AppColors.gray.withOpacity(0.8),),
                                                   SizedBox(width: 10,),
                                                   RichText(
                                                     text: TextSpan(
@@ -713,7 +716,7 @@ class DashboardView extends GetView<DashboardController> {
                                                 ],
                                               ),
                                             ),
-                                      controller.map['role']
+                                      controller.selectRole
                                           .toString()
                                           .toLowerCase() ==
                                           "station master"
@@ -796,9 +799,24 @@ class DashboardView extends GetView<DashboardController> {
                                             height: 50,
                                             width: 50,
                                             decoration: BoxDecoration(
+                                              color: AppColors.white,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                    color: AppColors.black)),
+                                                    color: AppColors.black),
+                                            
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Center(
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(100),
+                                                  child: controller.getAlertslist[i].waitTimeAlert==null
+                                                      ?Image.asset('images/queue.jpeg',
+                                                  fit: BoxFit.cover,):Image.asset('images/wait.jpeg',
+                                                    fit: BoxFit.cover,),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         )
                                       ],

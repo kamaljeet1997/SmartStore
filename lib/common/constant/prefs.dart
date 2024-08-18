@@ -8,6 +8,8 @@ class Prefs {
   final logindata = ''.val('accessToken');
   final email = ''.val('email');
   final pass = ''.val('pass');
+  final role = ''.val('role');
+  final userId = ''.val('userId');
 
   clear() {
     // accessToken.val = "";
