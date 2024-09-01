@@ -1,6 +1,7 @@
 
 import 'package:asadel/app/data/Alert2Response.dart';
 import 'package:asadel/app/data/AlertResponse.dart';
+import 'package:asadel/app/data/AppResponse.dart';
 import 'package:asadel/app/data/CameraResponse.dart';
 import 'package:asadel/app/data/CounterResponse.dart';
 import 'package:asadel/app/data/StoreResponse.dart';
@@ -15,7 +16,7 @@ import 'package:get/get.dart';
 class ApiHelperImpl extends GetConnect with ApiHelper {
   @override
   void onInit() {
-    httpClient.baseUrl = Constants.BASE_URL;
+    httpClient.baseUrl = KBaseURL==""?Constants.BASE_URL:KBaseURL;
     httpClient.timeout = Constants.timeout;
     addRequestModifier();
     httpClient.addResponseModifier((request, response) {
@@ -99,20 +100,30 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   }
 
   @override
-  Future<Response<StoreResponse>> getStore() {
+  Future<Response<Alert2Response>> getStore() {
     // TODO: implement getStore
     return get(
       KStore,
-      decoder: (v) => StoreResponse.fromJson(v),
+      decoder: (v) => Alert2Response.fromJson(v),
     );
   }
 
   @override
-  Future<Response<ZoneResponse>> getZone() {
+  Future<Response<Alert2Response>> getZone() {
     // TODO: implement getZone
     return get(
       KZone,
-      decoder: (v) => ZoneResponse.fromJson(v),
+      decoder: (v) => Alert2Response.fromJson(v),
+    );
+  }
+
+
+  @override
+  Future<Response<AppResponse>> getApp() {
+    // TODO: implement getApp
+    return get(
+      KApp,
+      decoder: (v) => AppResponse.fromJson(v),
     );
   }
 

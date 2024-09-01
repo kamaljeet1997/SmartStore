@@ -1,18 +1,27 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:asadel/app/data/StoreResponse.dart';
 import 'package:asadel/app/data/ZoneResponse.dart';
 import 'package:asadel/app/routes/app_pages.dart';
 import 'package:asadel/common/storage/storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:in_app_notification/in_app_notification.dart';
+import 'package:intl/intl.dart';
 
+import '../../../../common/api/data/all_api_url.dart';
 import '../../../../common/api/data/api_helper.dart';
 import '../../../../common/api/utils/utils.dart';
 import '../../../../common/appColors.dart';
 import '../../../../common/constant/prefs.dart';
+import '../../../../main.dart';
 import '../../../data/Alert2Response.dart';
 import '../../../data/AlertResponse.dart';
+import '../../../data/UsersResponse.dart';
 
 class DashboardController extends GetxController {
   //TODO: Implement DashboardController
@@ -31,7 +40,7 @@ class DashboardController extends GetxController {
   set selectZoneId(String v) => _selectZoneId.value = v;
 
 
-  final RxInt _itemCount = 10.obs;
+  final RxInt _itemCount = 0.obs;
   int get itemCount => _itemCount.value;
   set itemCount(int v) => _itemCount.value = v;
 
@@ -60,7 +69,7 @@ class DashboardController extends GetxController {
   set base64(String v) => _selectAlert.value = v;
 
 
-
+  Timer? timer;
   final ApiHelper _apiHelper = Get.find();
 
   final RxList<AlertTwoData> _getAlertslist = <AlertTwoData>[].obs;
@@ -70,6 +79,12 @@ class DashboardController extends GetxController {
   final RxList<String> _getDateslist = <String>[].obs;
   List<String> get getDateslist => _getDateslist.value;
   set getDateslist(List<String> v) => _getDateslist.assignAll(v);
+  final RxList<dynamic> _getZone = <dynamic>[].obs;
+  List<dynamic> get getZone => _getZone.value;
+  set getZone(List<dynamic> v) => _getZone.assignAll(v);
+  final RxList<dynamic> _getStore = <dynamic>[].obs;
+  List<dynamic> get getStore => _getStore.value;
+  set getStore(List<dynamic> v) => _getStore.assignAll(v);
 
   final RxList<AlertTwoData> _getallAlertslist = <AlertTwoData>[].obs;
   List<AlertTwoData> get getallAlertslist => _getallAlertslist.value;
@@ -96,76 +111,188 @@ class DashboardController extends GetxController {
   final RxString _userId = ''.obs;
   String get userId => _userId.value;
   set userId(String v) => _userId.value = v;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+  IOSFlutterLocalNotificationsPlugin flutterIOSLocalNotificationsPlugin=IOSFlutterLocalNotificationsPlugin();
+  final RxString _firebase_device_token = ''.obs;
+  String get firebase_device_token => _firebase_device_token.value;
+  set firebase_device_token(String v) => _firebase_device_token.value = v;
+  // final UsersData _getUserslist = <UsersData>[].obs;
+  // UsersData get getUserslist => _getUserslist.value;
+  // set getUserslist(List<UsersData> v) => _getUserslist.assignAll(v);
 
+
+  final Rx<UsersData?> _getUsersList = Rx<UsersData?>(null);
+  UsersData? get getUsersList => _getUsersList.value;
+  set getUsersList(UsersData? v) => _getUsersList.value = v;
+
+  var iosDeviceInfos;
+  var androidDeviceInfos;
 
   @override
-  void onInit() {
+  void onInit()async {
     super.onInit();
     shimmer=true;
-    if(Get.arguments!=null){
-      map=Get.arguments;
-      username=map['username'];
-      if(map['role']==null ||map['role']=='' ){
-        selectRole=Get.find<Prefs>().role.val;
-        userId=Get.find<Prefs>().userId.val;
-      }else{
-        selectRole=map['role'];
-        userId=map['usersId'];
-      }
+    // flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    // var initializationSettingsAndroid = AndroidInitializationSettings('images/vmm_logo.png'); // <- default icon name is @mipmap/ic_launcher
+    // var initializationSettingsIOS = IOSInitializationSettings(onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    // var initializationSettings = InitializationSettings(android: AndroidInitializationSettings(),iOS: initializationSettingsIOS);
+    // flutterLocalNotificationsPlugin.initialize();
 
-      print("Role Dashboard   ${selectRole}");
+  // String? token = await FirebaseMessaging.instance.getToken();
+  //   firebase_device_token=token??"";
+  //   print(firebase_device_token.toString());
+  //   NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+  //     alert: true,
+  //     announcement: true,
+  //     badge: true,
+  //     carPlay: false,
+  //     criticalAlert: true,
+  //     provisional: true,
+  //     sound: true,
+  //   );
+  //   AndroidNotificationChannel channel = const AndroidNotificationChannel(
+  //     'high_importance_channel', // id
+  //     'High Importance Notifications', // title
+  //     importance: Importance.high,
+  //   );
+  //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //     RemoteNotification? notification = message.notification;
+  //     AndroidNotification? android = message.notification?.android;
+  //     AppleNotification? ios = message.notification?.apple;
+  //     if (notification != null && android != null && ios != null) {
+  //       flutterIOSLocalNotificationsPlugin.show(
+  //           notification.hashCode,
+  //           notification.title,
+  //           notification.body,
+  //           notificationDetails: DarwinNotificationDetails(
+  //               presentSound: true,
+  //               presentBadge: true,
+  //               presentAlert: true
+  //           )
+  //       );
+  //       flutterLocalNotificationsPlugin.show(
+  //         notification.hashCode,
+  //         notification.title,
+  //         notification.body,
+  //         NotificationDetails(
+  //
+  //           iOS: DarwinNotificationDetails(
+  //             presentAlert: true,
+  //             presentBadge: true,
+  //             presentSound: true,
+  //
+  //           ),
+  //           android: AndroidNotificationDetails(
+  //             channel.id,
+  //             channel.name,
+  //             // TODO add a proper drawable resource to android, for now using
+  //             //      one that already exists in example app.
+  //             icon: '@mipmap/ic_launcher',
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //   }
+  //   );
+  //   FirebaseMessaging.onMessageOpenedApp.listen((event)async {
+  //     print("Messing"+event.notification.toString());
+  //     Get.toNamed(Routes.NOTIFICATION);
+  //   });
+  //
+  //   print("FCM token $firebase_device_token");
+    getUsersList=Storage.oneUserData;
+    debugPrint('Save Data : ${json.encode(getUsersList!.role)}');
+    if(getUsersList!=null ){
+      selectRole=getUsersList!.role??'';
+      userId=getUsersList!.userId??'';
+      username=getUsersList!.userName??'';
 
     }
+
 
   }
 
   @override
   void onReady() {
     super.onReady();
-
     alertsApiPost();
+
+
 
   }
 
   void alertsApiPost() {
 
     if(selectRole=='Admin'){
+      Utils.loadingDialog();
       _apiHelper.getAdminAlerts().futureValue((v) {
         printInfo(info: v.data.toString());
 
         if (v.data != null) {
+       shimmer==false;
+          Utils.closeDialog();
           selectAlert='';
           selectZone='';
           selectDate='';
           selectStore='';
           getallAlertslist=v.data??[];
           getAlertslist=v.data??[];
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
+          for(int i=0;i<getAlertslist.length;i++){
+            // timer = Timer.periodic(Duration(seconds: 15), (Timer t) => showNotificationWithActions(
+            //     BuildContext,getAlertslist[i].queueLengthAlert!=null?getAlertslist[i].queueLengthAlert.toString():getAlertslist[i].waitTimeAlert.toString(),
+            //     getAlertslist[i].zoneName.toString(),getAlertslist[i].storeName.toString(),DateFormat('dd/MM/yyyy').format(DateTime.parse(getAlertslist[i].updatedAt.toString()))));
+
+
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+
+            getZone.add(getAlertslist[i].zoneName.toString());
+
+            getStore.add(getAlertslist[i].storeName.toString());
+
+            debugPrint('getStore : ${json.encode(getStore)}');
+          }
+
+          print("Alerts : ${json.encode(v.data??[])}");
+        }
+      }
+      );
+    }
+    else if(selectRole.toString().toLowerCase()=='zone supervisor'||selectRole.toString().toLowerCase()=='line supervisor'){
+      _apiHelper.getZone().futureValue((v) {
+        printInfo(info: v.data.toString());
+        if (v.data != null) {
+          shimmer==false;
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
           for(int i=0;i<getAlertslist.length;i++){
             getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
           }
-
-
+          // zoneApiPost();
           print("Alerts : ${json.encode(v.data??[])}");
 
 
         }
       }
       );
-    }else{
-      _apiHelper.getAlerts().futureValue((v) {
+    }else if(selectRole.toString().toLowerCase()=='station master'){
+      _apiHelper.getZone().futureValue((v) {
         printInfo(info: v.data.toString());
         if (v.data != null) {
+          shimmer==false;
           selectAlert='';
           selectZone='';
           selectDate='';
           selectStore='';
           getallAlertslist=v.data??[];
           getAlertslist=v.data??[];
-          if(selectRole=='Station Master'){
-            getAlertslist=getAlertslist.where((e)=>e.userID==userId).toList();
-            print("Alerts for store user only : ${json.encode(getAlertslist)}");
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
 
-          }
           for(int i=0;i<getAlertslist.length;i++){
             getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
           }
@@ -177,48 +304,174 @@ class DashboardController extends GetxController {
       }
       );
     }
-    if(selectRole=='Zone Supervisor' || selectRole=='Admin'){
-      zoneApiPost();
-    }else{
-      StoreApiPost();
-    }
+
+
+    timer = Timer.periodic(Duration(seconds: 15), (Timer t) {
+
+      if(itemCount!=Klimit){
+        showNotificationWithActions(
+            getAlertslist[itemCount].zoneName.toString(),
+            getAlertslist[itemCount].storeName.toString(),
+            getAlertslist[itemCount].queueLengthAlert!=null?getAlertslist[itemCount].queueLengthAlert.toString():getAlertslist[itemCount].waitTimeAlert.toString(),
+            DateFormat('dd/MM/yyyy').format(DateTime.parse(getAlertslist[itemCount].updatedAt.toString())));
+
+
+
+      }else{
+        timer!.cancel();
+      }
+    });
+
+
 
   }
 
+void refresAlertsApiPost() {
 
-  void zoneApiPost() {
-    _apiHelper.getZone().futureValue((v) {
-      printInfo(info: v.data.toString());
-      if (v.data != null) {
-        getZonelist=v.data??[];
-        // getAlertslist=getAlertslist.where((e)=>e.zoneFootfall==selectZone).toList();
-        StoreApiPost();
-        print("Zone : ${json.encode(v.data??[])}");
+    if(selectRole=='Admin'){
+      Utils.loadingDialog();
+      _apiHelper.getAdminAlerts().futureValue((v) {
+        printInfo(info: v.data.toString());
+
+        if (v.data != null) {
+       shimmer==false;
+          Utils.closeDialog();
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
+          for(int i=0;i<getAlertslist.length;i++){
+            // timer = Timer.periodic(Duration(seconds: 15), (Timer t) => showNotificationWithActions(
+            //     BuildContext,getAlertslist[i].queueLengthAlert!=null?getAlertslist[i].queueLengthAlert.toString():getAlertslist[i].waitTimeAlert.toString(),
+            //     getAlertslist[i].zoneName.toString(),getAlertslist[i].storeName.toString(),DateFormat('dd/MM/yyyy').format(DateTime.parse(getAlertslist[i].updatedAt.toString()))));
 
 
-      }
-    }
-    );
-  } void StoreApiPost() {
-    _apiHelper.getStore().futureValue((v) {
-      printInfo(info: v.data.toString());
-      if (v.data != null) {
-        shimmer=false;
-        getStorelist=v.data??[];
-        // getAlertslist=getallAlertslist;
-        if(selectRole=='Zone Supervisor'){
-          getStorelist=getStorelist.where((e)=>e.zoneID==getZonelist[0].zoneID.toString()).toList();
-        }else{
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+
+            getZone.add(getAlertslist[i].zoneName.toString());
+
+            getStore.add(getAlertslist[i].storeName.toString());
+
+            debugPrint('getStore : ${json.encode(getStore)}');
+          }
+
+
+
+
+
+
+
+       // for(int n=0;n<10;n++){
+          //   print("Notification");
+          //   flutterLocalNotificationsPlugin.show(
+          //       1,
+          //       "Alert",
+          //       getAlertslist[n].queueLengthAlert!=null?"Queue Length Alert":"Wait Time Alert",
+          //       NotificationDetails(
+          //
+          //           iOS: DarwinNotificationDetails(
+          //             presentAlert: true,
+          //             presentBadge: true,
+          //             presentSound: true,
+          //           )));
+          // }
+
+
+
+          print("Alerts : ${json.encode(v.data??[])}");
+
 
         }
-
-        print("Zone : ${json.encode(v.data??[])}");
-
-
       }
+      );
+    }else if(selectRole.toString().toLowerCase()=='zone supervisor'){
+      _apiHelper.getZone().futureValue((v) {
+        printInfo(info: v.data.toString());
+        if (v.data != null) {
+          shimmer==false;
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
+          for(int i=0;i<getAlertslist.length;i++){
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+          }
+          // zoneApiPost();
+          print("Alerts : ${json.encode(v.data??[])}");
+
+
+        }
+      }
+      );
+    }else if(selectRole.toString().toLowerCase()=='station master'){
+      _apiHelper.getZone().futureValue((v) {
+        printInfo(info: v.data.toString());
+        if (v.data != null) {
+          shimmer==false;
+          selectAlert='';
+          selectZone='';
+          selectDate='';
+          selectStore='';
+          getallAlertslist=v.data??[];
+          getAlertslist=v.data??[];
+          getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
+
+          for(int i=0;i<getAlertslist.length;i++){
+            getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
+          }
+          // zoneApiPost();
+          print("Alerts : ${json.encode(v.data??[])}");
+
+
+        }
+      }
+      );
     }
-    );
+
+
   }
+
+
+  // void zoneApiPost() {
+  //   _apiHelper.getZone().futureValue((v) {
+  //     printInfo(info: v.data.toString());
+  //     if (v.data != null) {
+  //       getZonelist=v.data??[];
+  //       // getAlertslist=getAlertslist.where((e)=>e.zoneFootfall==selectZone).toList();
+  //       StoreApiPost();
+  //       print("Zone : ${json.encode(v.data??[])}");
+  //
+  //
+  //     }
+  //   }
+  //   );
+  // }
+  // void StoreApiPost() {
+  //   _apiHelper.getStore().futureValue((v) {
+  //     printInfo(info: v.data.toString());
+  //     if (v.data != null) {
+  //       shimmer=false;
+  //       getStorelist=v.data??[];
+  //       // getAlertslist=getallAlertslist;
+  //       if(selectRole=='Zone Supervisor'){
+  //         getStorelist=getStorelist.where((e)=>e.zoneID==getZonelist[0].zoneID.toString()).toList();
+  //       }else{
+  //
+  //       }
+  //
+  //       print("Zone : ${json.encode(v.data??[])}");
+  //
+  //
+  //     }
+  //   }
+  //   );
+  // }
 
 
   Widget drawer() {
@@ -307,6 +560,9 @@ class DashboardController extends GetxController {
                         onTap: (){
                           Storage.clearStorage();
                           shimmer=true;
+                          timer!.cancel();
+
+
                           Get.offAllNamed(Routes.LOGIN);
                         },
                   ),
@@ -325,4 +581,88 @@ class DashboardController extends GetxController {
     );
   }
 
+  Future<void> showNotificationWithActions(zone,store,alert,date) async {
+    itemCount++;
+    InAppNotification.show(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: 100),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 12,
+                  blurRadius: 16,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(
+                      width: 1.4,
+                      color: Colors.grey.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Zone: $zone",
+                          style: TextStyle(
+                            fontSize: Get.height/50,
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                        Text(
+                          "Store: $store",
+                          style: TextStyle(
+                              fontSize: Get.height/60,
+                              fontWeight: FontWeight.w300
+                          ),
+                        ),
+                        Text(
+                          "Alert: $alert",
+                          style: TextStyle(
+                              fontSize: Get.height/65,
+                              fontWeight: FontWeight.w200
+                          ),
+                        ),Text(
+                          "Date: $date",
+                          style: TextStyle(
+                              fontSize: Get.height/70,
+                              fontWeight: FontWeight.normal
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      context: Get.context!,
+      onTap: () => debugPrint('Notification tapped!'),
+      duration: Duration(milliseconds: 500),
+    );
+  }
+
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    timer!.cancel();
+  }
 }

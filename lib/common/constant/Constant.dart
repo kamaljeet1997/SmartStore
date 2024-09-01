@@ -15,7 +15,7 @@ class Constants {
   //------------Beta URL-----------//
   // static const String BASE_URL = 'http://mbdguide.com/mobileapp/api/v3/';
   //------------Live URL-----------//
-  static const String BASE_URL = 'http://122.160.201.198:3031/';
+  static const String BASE_URL = 'http://122.160.201.198:3032/';
 
   //call method channel only android for native code
   static const platformMethodChannel =

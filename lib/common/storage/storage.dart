@@ -37,6 +37,20 @@ class Storage {
     return null;
   }
 
+  static UsersData? get oneUserData {
+    final d = _storage.read(Constants.USER_DATA_LIST
+    );
+    if (d != null) {
+      if (d is UsersData) {
+        return d;
+      } else {
+        return UsersData.fromJson(d);
+      }
+    }
+    return null;
+  }
+
+
 
 
 

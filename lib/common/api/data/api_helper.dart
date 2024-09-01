@@ -1,4 +1,5 @@
 
+import 'package:asadel/app/data/AppResponse.dart';
 import 'package:asadel/app/data/CameraResponse.dart';
 import 'package:asadel/app/data/CounterResponse.dart';
 import 'package:asadel/app/data/StoreResponse.dart';
@@ -14,10 +15,11 @@ mixin ApiHelper {
   Future<Response<UsersResponse>> getUsers();
   Future<Response<Alert2Response>> getAlerts();
   Future<Response<Alert2Response>> getAdminAlerts();
-  Future<Response<StoreResponse>> getStore();
-  Future<Response<ZoneResponse>> getZone();
+  Future<Response<Alert2Response>> getStore();
+  Future<Response<Alert2Response>> getZone();
   Future<Response<CounterResponse>> getCounter();
   Future<Response<CameraResponse>> getCamera();
+  Future<Response<AppResponse>> getApp();
 
 
 }

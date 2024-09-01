@@ -1,16 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:asadel/app/data/AlertResponse.dart';
 import 'package:asadel/app/data/StoreResponse.dart';
 import 'package:asadel/common/appColors.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import 'package:in_app_notification/in_app_notification.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../common/api/utils/utils.dart';
 import '../../../../common/custom_dropDown_widget_ac.dart';
+import '../../../../main.dart';
 import '../../../data/Alert2Response.dart';
 import '../../../data/ZoneResponse.dart';
 import '../../../routes/app_pages.dart';
@@ -31,12 +33,15 @@ class DashboardView extends GetView<DashboardController> {
               backgroundColor: AppColors.white,
               title: Text(
                   'Welcome, ${controller.username.toString().capitalizeFirst} '),
+              titleTextStyle: TextStyle(color: AppColors.black,fontSize: Get.height/45),
               centerTitle: false,
               actions: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
+
+
                       Get.toNamed(Routes.NOTIFICATION);
                     },
                     child: Icon(
@@ -89,15 +94,16 @@ class DashboardView extends GetView<DashboardController> {
             Obx(
               () => Row(
                 children: [
-                  controller.selectRole
-                      .toString()
-                      .toLowerCase() ==
-                      "station master" ||
+
                       controller.selectRole
                           .toString()
                           .toLowerCase()
                            ==
-                          "zone supervisor"
+                          "zone supervisor" || controller.selectRole
+                          .toString()
+                          .toLowerCase()
+                           ==
+                          "line supervisor"
                       ? SizedBox.shrink()
                       : Expanded(
                           child: Padding(
@@ -107,8 +113,8 @@ class DashboardView extends GetView<DashboardController> {
                                 top: Get.height / 80,
                                 bottom: Get.width / 90),
                             child: Center(
-                              child: CustomDropDownWidget<ZoneData>(
-                                dataList: controller.getZonelist,
+                              child: CustomDropDownWidget<dynamic>(
+                                dataList: controller.getZone.toSet().toList(),
                                 hinttext: controller.selectZone == ""
                                     ? "Zone"
                                     : controller.selectZone,
@@ -122,66 +128,67 @@ class DashboardView extends GetView<DashboardController> {
                                         : Get.height / 60,
                                     fontFamily: 'Poppins-Medium'),
                                 onChanged: (value) {
-                                  controller.selectZone = value!.zoneName??'';
-                                  controller.selectZoneId = value.zoneID??'';
+                                  controller.selectZone = value!;
+                                  // controller.selectZoneId = value['Zone_;
                                   controller.getAlertslist= controller.getallAlertslist;
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
-                                  controller. getStorelist= controller.getStorelist.where((e)=>e.zoneID== controller.selectZoneId).toList();
+                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneName== controller.selectZone).toList();
+                                  // controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
+                                  // controller. getStorelist= controller.getStorelist.where((e)=>e.zoneID== controller.selectZoneId).toList();
 
                                   //   controller.firebase_Ebook(value.classId!);
                                 },
-                                item: (data) => data.zoneName.toString(),
+                                item: (data) => data.toString(),
                               ),
                             ),
                           ),
                         ),
                   controller.selectRole
                       .toString()
-                      .toLowerCase() ==
+                      .toLowerCase()
+                      ==
                       "station master"
                       ? SizedBox.shrink()
-                      : controller.getStorelist.isEmpty?SizedBox.shrink():Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left:   controller.selectRole
-                                    .toString()
-                                    .toLowerCase()
-                                    ==
-                                    "zone supervisor"
-                                    ?Get.width / 30:0,
-                                right: Get.width / 50,
-                                top: Get.height / 80,
-                                bottom: Get.width / 90),
-                            child: Center(
-                              child: CustomDropDownWidget<StoreData>(
-                                dataList:controller.getStorelist,
-                                hinttext: controller.selectStore == ""
-                                    ? "Store"
-                                    : controller.selectStore,
-                                fontsize: Get.height / 45,
-                                fontFamily: "Poppins-Regular",
-                                icon: Icon(Icons.keyboard_arrow_down_outlined),
-                                hintStyle: TextStyle(
-                                    color: AppColors.gray.withOpacity(0.7),
-                                    fontSize: Get.width > 550
-                                        ? Get.height / 70
-                                        : Get.height / 60,
-                                    fontFamily: 'Poppins-Medium'),
-                                onChanged: (value) {
-                                  controller.selectStore = value!.storeName??'';
-                                  controller.selectStoreId = value.storeID??'';
-                                  controller.getAlertslist= controller.getallAlertslist;
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeID==  controller.selectStoreId).toList();
-                                  controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeID==  controller.selectStoreId).toList();
+                      : Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          left:controller.selectRole
+                              .toString()
+                              .toLowerCase()
+                              ==
+                              "admin"?0:Get.width / 30,
+                          right: Get.width / 30,
+                          top: Get.height / 80,
+                          bottom: Get.width / 90),
+                      child: Center(
+                        child: CustomDropDownWidget<dynamic>(
+                          dataList: controller.getStore.toSet().toList(),
+                          hinttext: controller.selectStore == ""
+                              ? "Store"
+                              : controller.selectStore,
+                          fontsize: Get.height / 45,
+                          fontFamily: "Poppins-Regular",
+                          icon: Icon(Icons.keyboard_arrow_down_outlined),
+                          hintStyle: TextStyle(
+                              color: AppColors.gray.withOpacity(0.7),
+                              fontSize: Get.width > 550
+                                  ? Get.height / 70
+                                  : Get.height / 60,
+                              fontFamily: 'Poppins-Medium'),
+                          onChanged: (value) {
+                            controller.selectStore = value!;
+                            // controller.selectZoneId = value['Zone_;
+                            controller.getAlertslist= controller.getallAlertslist;
+                            controller. getAlertslist= controller.getAlertslist.where((e)=>e.storeName== controller.selectStore).toList();
+                            // controller. getAlertslist= controller.getAlertslist.where((e)=>e.zoneID== controller.selectZoneId).toList();
+                            // controller. getStorelist= controller.getStorelist.where((e)=>e.zoneID== controller.selectZoneId).toList();
 
-                                  //   controller.firebase_Ebook(value.classId!);
-                                },
-                                item: (data) => data.storeName.toString(),
-                              ),
-                            ),
-                          ),
+                            //   controller.firebase_Ebook(value.classId!);
+                          },
+                          item: (data) => data.toString(),
                         ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -271,48 +278,7 @@ class DashboardView extends GetView<DashboardController> {
             ),
             Expanded(
               child: Obx(
-                () =>  controller.shimmer
-                    ? ListView.builder(
-                    shrinkWrap: true,
-    itemCount: controller.getAlertslist.length,
-    itemBuilder: (_, i) {
-      return Shimmer
-          .fromColors(
-        baseColor: AppColors
-            .header_color
-            .withOpacity(
-            0.2),
-        highlightColor:
-        AppColors
-            .white,
-        child:
-        new Padding(
-          padding:
-          new EdgeInsets
-              .all(
-              10.0),
-          child:
-          new Container(
-            height:
-            Get.height /
-                10,
-            width:
-            Get.height /
-                5,
-            decoration:
-            BoxDecoration(
-              borderRadius:
-              BorderRadius.all(Radius.circular(1)),
-              color: Colors
-                  .white,
-            ),
-          ),
-        ),
-      );
-
-    }
-                    )
-                    :controller.getAlertslist.isEmpty
+                () =>controller.getAlertslist.isEmpty
                     ?Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -348,6 +314,15 @@ class DashboardView extends GetView<DashboardController> {
                     shrinkWrap: true,
                     itemCount: controller.getAlertslist.length,
                     itemBuilder: (_, i) {
+                      // if(i==3){
+                      //   controller.timer;
+                      // }else{
+                      //   controller.timer = Timer.periodic(Duration(seconds: 15), (Timer t) => controller.showNotificationWithActions(
+                      //       controller.getAlertslist[i].zoneName.toString(),controller.getAlertslist[i].storeName.toString(),controller.getAlertslist[i].queueLengthAlert!=null?controller.getAlertslist[i].queueLengthAlert.toString():controller.getAlertslist[i].waitTimeAlert.toString(),
+                      //       DateFormat('dd/MM/yyyy').format(DateTime.parse(controller.getAlertslist[i].updatedAt.toString()))));
+                      //
+                      // }
+
                       return Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: InkWell(

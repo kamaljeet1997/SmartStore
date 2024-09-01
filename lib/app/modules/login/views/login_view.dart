@@ -104,7 +104,9 @@ class LoginView extends GetView<LoginController> {
                  SizedBox(height:  Get.height/20,),
                  InkWell(
                    onTap: (){
+
                      if(Storage.userData!=null){
+                       Utils.loadingDialog();
                        controller.getUserslist=Storage.userData!.data??[];
                        controller.getUserslist=controller.getUserslist.where((e)=>e.password_D==controller.passwordcontroller.text && e.userEmail==controller.emailcontroller.text).toList();
                        print("getUserData : ${json.encode(controller.getUserslist.toString())}");
@@ -123,6 +125,7 @@ class LoginView extends GetView<LoginController> {
                            "password":controller.password,
                            "role":controller.role
                          };
+                         Utils.closeDialog();
                          Get.offAllNamed(Routes.DASHBOARD,arguments:map);
                        }else{
                          Utils.shortAlertToast("Invalid credentials");

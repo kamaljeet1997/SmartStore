@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "783678097067",
+    "project_id": "smartstore-f14d4",
+    "storage_bucket": "smartstore-f14d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783678097067:android:28c23d64bf979faf43d9ee",
+        "android_client_info": {
+          "package_name": "com.asadel.asadel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCID089C0Yc6_wCuKAYHkhYC_k-Qi0qdL4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

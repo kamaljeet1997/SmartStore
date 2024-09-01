@@ -62,38 +62,15 @@ class LoginController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    if(Storage.userData!=null){
-     getUserslist=Storage.userData!.data??[];
-     getUserslist=getUserslist.where((e)=>e.password_D==Get.find<Prefs>().pass.val&& e.userEmail==Get.find<Prefs>().email.val).toList();
-      print("getUserData : ${json.encode(getUserslist.toString())}");
-
-      for(int i=0;i<getUserslist.length;i++){
-       email=getUserslist[i].userEmail??"";
-       password=getUserslist[i].password_D??"";
-       usersname=getUserslist[i].userName??"";
-       userId=getUserslist[i].userId??"";
-       role=getUserslist[i].role??"";
-      }
-if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
-  Map map={
-    "email":email,
-    "username":usersname,
-    "password":password,
-    "role":role,
-    "usersId":userId,
-    "list":getUserslist
-  };
-  Get.offAllNamed(Routes.DASHBOARD,arguments:map);
-}
-}
-
 
   }
 
   void usersdApiPost() {
+    Utils.loadingDialog();
     _apiHelper.getUsers().futureValue((v) {
       printInfo(info: v.data.toString());
       if (v.data != null) {
+        Utils.closeDialog();
         Get.find<Prefs>().email.val='';
         Get.find<Prefs>().pass.val='';
         getUserslist = v.data??[];
@@ -101,8 +78,8 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
         getUserslist=getUserslist.where((e)=>e.password_D==passwordcontroller.text && e.userEmail==emailcontroller.text).toList();
         Get.find<Prefs>().email.val = emailcontroller.text;
         Get.find<Prefs>().pass.val = passwordcontroller.text;
-        Storage.saveValue(Constants.USER_DATA, v.data);
-        print("getUserData : ${json.encode(getUserslist.toString())}");
+
+        print("getUserData : ${json.encode(getUserslist)}");
 
         for(int i=0;i<getUserslist.length;i++){
           email=getUserslist[i].userEmail??"";
@@ -111,9 +88,13 @@ if(email==Get.find<Prefs>().email.val &&password==Get.find<Prefs>().pass.val){
           role=getUserslist[i].role??"";
           userId=getUserslist[i].userId??"";
           Get.find<Prefs>().role.val = role;
+          Get.find<Prefs>().username.val = usersname;
           Get.find<Prefs>().userId.val = userId;
+          Storage.saveValue(Constants.USER_DATA_LIST, getUserslist[i]);
 
         }
+        print("getOneUserData : ${json.encode(Storage.oneUserData)}");
+
 
         if(email==emailcontroller.text && password==passwordcontroller.text){
           Map map={

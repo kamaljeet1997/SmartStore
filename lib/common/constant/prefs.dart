@@ -10,6 +10,7 @@ class Prefs {
   final pass = ''.val('pass');
   final role = ''.val('role');
   final userId = ''.val('userId');
+  final username = ''.val('username');
 
   clear() {
     // accessToken.val = "";
