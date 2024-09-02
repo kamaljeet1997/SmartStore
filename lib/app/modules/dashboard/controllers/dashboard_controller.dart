@@ -71,6 +71,8 @@ class DashboardController extends GetxController {
 
   Timer? timer;
   final ApiHelper _apiHelper = Get.find();
+  final _body = <String, dynamic>{};
+  final _body1 = <String, dynamic>{};
 
   final RxList<AlertTwoData> _getAlertslist = <AlertTwoData>[].obs;
   List<AlertTwoData> get getAlertslist => _getAlertslist.value;
@@ -259,7 +261,8 @@ class DashboardController extends GetxController {
       );
     }
     else if(selectRole.toString().toLowerCase()=='zone supervisor'||selectRole.toString().toLowerCase()=='line supervisor'){
-      _apiHelper.getZone().futureValue((v) {
+
+      _apiHelper.getZone(userId).futureValue((v) {
         printInfo(info: v.data.toString());
         if (v.data != null) {
           shimmer==false;
@@ -281,7 +284,7 @@ class DashboardController extends GetxController {
       }
       );
     }else if(selectRole.toString().toLowerCase()=='station master'){
-      _apiHelper.getZone().futureValue((v) {
+      _apiHelper.getStore(userId).futureValue((v) {
         printInfo(info: v.data.toString());
         if (v.data != null) {
           shimmer==false;
@@ -344,11 +347,6 @@ void refresAlertsApiPost() {
           getAlertslist=v.data??[];
           getAlertslist=getAlertslist.where((e)=>e.queueLengthAlert!=null||e.waitTimeAlert!=null).toList();
           for(int i=0;i<getAlertslist.length;i++){
-            // timer = Timer.periodic(Duration(seconds: 15), (Timer t) => showNotificationWithActions(
-            //     BuildContext,getAlertslist[i].queueLengthAlert!=null?getAlertslist[i].queueLengthAlert.toString():getAlertslist[i].waitTimeAlert.toString(),
-            //     getAlertslist[i].zoneName.toString(),getAlertslist[i].storeName.toString(),DateFormat('dd/MM/yyyy').format(DateTime.parse(getAlertslist[i].updatedAt.toString()))));
-
-
             getDateslist.add(getAlertslist[i].updatedAt.toString().split("T")[0].toString());
 
             getZone.add(getAlertslist[i].zoneName.toString());
@@ -388,7 +386,7 @@ void refresAlertsApiPost() {
       }
       );
     }else if(selectRole.toString().toLowerCase()=='zone supervisor'){
-      _apiHelper.getZone().futureValue((v) {
+      _apiHelper.getZone(userId).futureValue((v) {
         printInfo(info: v.data.toString());
         if (v.data != null) {
           shimmer==false;
@@ -410,7 +408,7 @@ void refresAlertsApiPost() {
       }
       );
     }else if(selectRole.toString().toLowerCase()=='station master'){
-      _apiHelper.getZone().futureValue((v) {
+      _apiHelper.getStore(userId).futureValue((v) {
         printInfo(info: v.data.toString());
         if (v.data != null) {
           shimmer==false;

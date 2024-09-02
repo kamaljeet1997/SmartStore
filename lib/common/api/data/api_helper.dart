@@ -15,8 +15,8 @@ mixin ApiHelper {
   Future<Response<UsersResponse>> getUsers();
   Future<Response<Alert2Response>> getAlerts();
   Future<Response<Alert2Response>> getAdminAlerts();
-  Future<Response<Alert2Response>> getStore();
-  Future<Response<Alert2Response>> getZone();
+  Future<Response<Alert2Response>> getStore(userId);
+  Future<Response<Alert2Response>> getZone(userId);
   Future<Response<CounterResponse>> getCounter();
   Future<Response<CameraResponse>> getCamera();
   Future<Response<AppResponse>> getApp();

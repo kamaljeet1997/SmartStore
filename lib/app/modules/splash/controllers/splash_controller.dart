@@ -58,8 +58,8 @@ class SplashController extends GetxController {
         Utils.closeDialog();
         KBaseURL=v.data![0].baseUrl??'';
         KAdmin=v.data![0].admin??'';
-        KZone=v.data![0].zone??'';
-        KStore=v.data![0].store??'';
+        KZone=v.data![0].zone.toString().split(":")[0];
+        KStore=v.data![0].store.toString().split(":")[0];
         Klimit=v.data![0].limit??0;
         loading = true;
         Timer.periodic(

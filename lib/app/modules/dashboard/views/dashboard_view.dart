@@ -74,7 +74,7 @@ class DashboardView extends GetView<DashboardController> {
 
                     InkWell(
                       onTap: (){
-                        controller.alertsApiPost();
+                        controller.refresAlertsApiPost();
                         // if(controller.emailcontroller.text.isEmpty){
                         //   Utils.shortAlertToast("Please Enter User Name");
                         // }else if (controller.passwordcontroller.text.isEmpty){

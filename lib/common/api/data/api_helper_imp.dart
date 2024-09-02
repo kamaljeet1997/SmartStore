@@ -100,19 +100,19 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   }
 
   @override
-  Future<Response<Alert2Response>> getStore() {
+  Future<Response<Alert2Response>> getStore(userId) {
     // TODO: implement getStore
     return get(
-      KStore,
+      "$KStore$userId",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
 
   @override
-  Future<Response<Alert2Response>> getZone() {
+  Future<Response<Alert2Response>> getZone(userId) {
     // TODO: implement getZone
     return get(
-      KZone,
+      "$KZone$userId",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
