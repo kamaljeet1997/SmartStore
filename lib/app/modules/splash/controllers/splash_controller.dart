@@ -1,19 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:asadel/app/data/AppResponse.dart';
 import 'package:asadel/common/constant/Constant.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/api/data/all_api_url.dart';
 import '../../../../common/api/data/api_helper.dart';
 import '../../../../common/api/utils/utils.dart';
+import '../../../../common/constant/prefs.dart';
 import '../../../../common/storage/storage.dart';
 import '../../../routes/app_pages.dart';
 
 class SplashController extends GetxController {
   //TODO: Implement SplashController
-
-  final ApiHelper _apiHelper = Get.find();
   final RxBool _loading = false.obs;
 
   bool get loading => _loading.value;
@@ -50,28 +53,37 @@ class SplashController extends GetxController {
     );
   }
 
-  void usersdApiPost() {
+  void usersdApiPost() async{
     Utils.loadingDialog();
-    _apiHelper.getApp().futureValue((v) {
-      printInfo(info: v.data.toString());
-      if (v.data != null) {
-        Utils.closeDialog();
-        KBaseURL=v.data![0].baseUrl??'';
-        KAdmin=v.data![0].admin??'';
-        KZone=v.data![0].zone.toString().split(":")[0];
-        KStore=v.data![0].store.toString().split(":")[0];
-        Klimit=v.data![0].limit??0;
-        loading = true;
-        Timer.periodic(
-          Duration(milliseconds: 200),
-              (timer) {
-            loading = !loading;
-          },
-        );
-        gotoLoginScreen();
-      }
+    final dio = Dio();
+    printInfo(info: "BaseURL: ${"$KBaseURL$KApp"}");
+    final response = await dio.get(KBaseURL+KApp);
+    AppResponse v=AppResponse.fromJson(response.data);
+    printInfo(info: json.encode(v.data));
+    if (v.data != null) {
+      Storage.saveValue('BaseURL', v.data![0].baseUrl);
+      Get.find<Prefs>().baseurl.val = v.data![0].baseUrl.toString();
+      KBaseURL2="${v.data![0].baseUrl}"??'';
+      KAdmin=v.data![0].admin??'';
+      KUser=v.data![0].login??'';
+      KZone=v.data![0].zone.toString().split(":")[0];
+      KStore=v.data![0].store.toString().split(":")[0];
+      Klimit=v.data![0].limit??0;
+      debugPrint("Base URL ${Storage.getValue("BaseURL")}");
+      loading = true;
+      Timer.periodic(
+        Duration(milliseconds: 200),
+            (timer) {
+          loading = !loading;
+        },
+      );
+      gotoLoginScreen();
     }
-    );
+    // _apiHelper.getApp().futureValue((v) {
+    //   printInfo(info: v.data.toString());
+    //
+    // }
+    // );
   }
 
 }

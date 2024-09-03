@@ -48,8 +48,9 @@ class Initializer {
   }
 
   void _initApis() {
-    Get.put<ApiHelper>(
-      ApiHelperImpl(),);
+    Get.put<ApiHelper>(ApiHelperImpl(),);
+
+
     Get.put(Prefs(),);
     Get.put<ApiInterfaceController>(
       ApiInterfaceController(),);

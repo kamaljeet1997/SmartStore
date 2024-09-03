@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/status/http_status.dart';
 import '../../string.dart';
+import '../utils/utils.dart';
 import 'app_error.dart';
 
 class AppResponse {
@@ -38,6 +39,7 @@ class AppResponse {
 
         return response.body;
       } else {
+        Utils.closeDialog();
         if (status.isServerError) {
           throw ApiError();
         } else if (status.code == HttpStatus.internalServerError) {
@@ -57,10 +59,12 @@ class AppResponse {
         }
       }
     } on FormatException catch (e) {
+      Utils.closeDialog();
       throw ApiError(
         message: e.toString(),
       );
     } on TimeoutException catch (e) {
+      Utils.closeDialog();
       throw TimeoutError(
         message: e.message?.toString() ?? Strings.connectionTimeout,
       );

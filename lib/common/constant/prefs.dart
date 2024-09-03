@@ -11,6 +11,7 @@ class Prefs {
   final role = ''.val('role');
   final userId = ''.val('userId');
   final username = ''.val('username');
+  final baseurl = ''.val('baseurl');
 
   clear() {
     // accessToken.val = "";

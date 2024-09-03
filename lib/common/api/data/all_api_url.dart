@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 
 
 // String KSignUp = "register";
-String KBaseURL = "";
+String KBaseURL = "http://122.160.201.198:3032/";
+  String KBaseURL2 = "";
 String KApp = "App_k";
 String KUser = "User_k";
 String KAlert = "Alerts_k";

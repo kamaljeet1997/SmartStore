@@ -7,6 +7,8 @@ import 'package:asadel/app/data/CounterResponse.dart';
 import 'package:asadel/app/data/StoreResponse.dart';
 import 'package:asadel/app/data/UsersResponse.dart';
 import 'package:asadel/app/data/ZoneResponse.dart';
+import 'package:asadel/common/storage/storage.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../constant/Constant.dart';
 import 'all_api_url.dart';
@@ -16,8 +18,8 @@ import 'package:get/get.dart';
 class ApiHelperImpl extends GetConnect with ApiHelper {
   @override
   void onInit() {
-    httpClient.baseUrl = KBaseURL==""?Constants.BASE_URL:KBaseURL;
-    httpClient.timeout = Constants.timeout;
+    // httpClient.baseUrl = "${KBaseURL2==""?'http://122.160.201.198:3032/':KBaseURL2}/";
+    // httpClient.timeout = Constants.timeout;
     addRequestModifier();
     httpClient.addResponseModifier((request, response) {
       printInfo(
@@ -57,9 +59,11 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
 
   @override
   Future<Response<UsersResponse>> getUsers() {
+    var hh=Storage.getValue("BaseURL");
+    debugPrint("getUsers URL : $hh");
     // TODO: implement Login
     return get(
-            KUser,
+            "$KBaseURL2/$KUser",
             decoder: (v) => UsersResponse.fromJson(v),
     );
   }
@@ -68,7 +72,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<Alert2Response>> getAlerts() {
     // TODO: implement getAlerts
     return get(
-      KAlert2,
+      "$KBaseURL2/$KAlert2",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
@@ -76,7 +80,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<Alert2Response>> getAdminAlerts() {
     // TODO: implement getAlerts
     return get(
-      KAdmin,
+      "$KBaseURL2/$KAdmin",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
@@ -85,7 +89,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<CameraResponse>> getCamera() {
     // TODO: implement getCamera
     return get(
-      KCamera,
+      "$KBaseURL2/$KCamera",
       decoder: (v) => CameraResponse.fromJson(v),
     );
   }
@@ -94,7 +98,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<CounterResponse>> getCounter() {
     // TODO: implement getCounter
     return get(
-      KCounter,
+      "$KBaseURL2/$KCounter",
       decoder: (v) => CounterResponse.fromJson(v),
     );
   }
@@ -103,7 +107,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<Alert2Response>> getStore(userId) {
     // TODO: implement getStore
     return get(
-      "$KStore$userId",
+      "$KBaseURL2/$KStore$userId",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }
@@ -112,7 +116,7 @@ class ApiHelperImpl extends GetConnect with ApiHelper {
   Future<Response<Alert2Response>> getZone(userId) {
     // TODO: implement getZone
     return get(
-      "$KZone$userId",
+      "$KBaseURL2/$KZone$userId",
       decoder: (v) => Alert2Response.fromJson(v),
     );
   }

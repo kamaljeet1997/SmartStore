@@ -540,6 +540,7 @@ void refresAlertsApiPost() {
               size: Get.height/27,),
 
                         onTap: (){
+
                     Utils.shortAlertToast("Under Development");
 
                         },
@@ -556,6 +557,7 @@ void refresAlertsApiPost() {
               size: Get.height/27,
               color: AppColors.white,),
                         onTap: (){
+                          KBaseURL2='';
                           Storage.clearStorage();
                           shimmer=true;
                           timer!.cancel();

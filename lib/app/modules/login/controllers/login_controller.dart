@@ -1,13 +1,16 @@
 import 'dart:convert';
 
+import 'package:asadel/app/data/AppResponse.dart';
 import 'package:asadel/common/constant/Constant.dart';
 import 'package:asadel/common/storage/storage.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../../../common/api/data/all_api_url.dart';
 import '../../../../common/api/data/api_helper.dart';
+import '../../../../common/api/data/api_helper_imp.dart';
 import '../../../../common/constant/prefs.dart';
 import '../../../data/UsersResponse.dart';
 import '../../../routes/app_pages.dart';
@@ -65,8 +68,37 @@ class LoginController extends GetxController {
 
   }
 
+  void appApiPost() async{
+
+    Utils.loadingDialog();
+    final dio = Dio();
+    printInfo(info: "BaseURL: ${"$KBaseURL$KApp"}");
+    final response = await dio.get(KBaseURL+KApp);
+    AppResponse v=AppResponse.fromJson(response.data);
+    printInfo(info: json.encode(v.data));
+    if (v.data != null) {
+      KBaseURL2="${v.data![0].baseUrl}";
+      Get.put<ApiHelper>(ApiHelperImpl(),);
+      KAdmin=v.data![0].admin??'';
+      KUser=v.data![0].login??'';
+      KZone=v.data![0].zone.toString().split(":")[0];
+      KStore=v.data![0].store.toString().split(":")[0];
+      Klimit=v.data![0].limit??0;
+      debugPrint("Base URL ${Storage.getValue("BaseURL")}");
+      usersdApiPost();
+    }
+    // _apiHelper.getApp().futureValue((v) {
+    //   printInfo(info: v.data.toString());
+    //
+    // }
+    // );
+  }
+
+
+
   void usersdApiPost() {
     Utils.loadingDialog();
+
     _apiHelper.getUsers().futureValue((v) {
       printInfo(info: v.data.toString());
       if (v.data != null) {

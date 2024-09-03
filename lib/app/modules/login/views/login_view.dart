@@ -131,7 +131,7 @@ class LoginView extends GetView<LoginController> {
                          Utils.shortAlertToast("Invalid credentials");
                        }
                      }else{
-                       controller.usersdApiPost();
+                       controller.appApiPost();
                      }
 
 
